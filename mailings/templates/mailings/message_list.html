@@ -10,7 +10,8 @@
     <ul>
         {% for message in messages %}
             <li>
-                {{ message.subject }}
+                <strong>{{ message.subject }}</strong><br>
+                {{ message.body|linebreaks }}
                 <a href="{% url 'mailings:message_update' message.pk %}">✏️</a>
                 <a href="{% url 'mailings:message_delete' message.pk %}">🗑️</a>
             </li>
