@@ -12,3 +12,15 @@ class Client(models.Model):
 
     def __str__(self):
         return f"{self.full_name} <{self.email}>"
+
+
+class Message(models.Model):
+    subject = models.CharField("Тема письма", max_length=255)
+    body = models.TextField("Тело письма")
+
+    class Meta:
+        verbose_name = "сообщение"
+        verbose_name_plural = "сообщения"
+
+    def __str__(self):
+        return self.subject
