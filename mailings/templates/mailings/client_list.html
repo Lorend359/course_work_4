@@ -8,7 +8,10 @@
     <h1>Список клиентов</h1>
     <ul>
         {% for client in clients %}
-            <li>{{ client.full_name }} — {{ client.email }}</li>
+            <li>
+                {{ client.full_name }} — {{ client.email }}
+                <a href="{% url 'mailings:client_update' client.pk %}">✏️ Редактировать</a>
+            </li>
         {% empty %}
             <li>Пока нет клиентов.</li>
         {% endfor %}
