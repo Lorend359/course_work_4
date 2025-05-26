@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Список рассылок</title>
+</head>
+<body>
+    <h1>Список рассылок</h1>
+    <a href="{% url 'mailings:mailing_create' %}">➕ Новая рассылка</a>
+    <ul>
+        {% for mailing in mailings %}
+            <li>
+                <strong>с {{ mailing.start_time }} до {{ mailing.end_time }}</strong><br>
+                Статус: {{ mailing.status }}<br>
+                Сообщение: {{ mailing.message.subject }}<br>
+                Получатели:
+                <ul>
+                    {% for client in mailing.clients.all %}
+                        <li>{{ client.full_name }} ({{ client.email }})</li>
+                    {% endfor %}
+                </ul>
+                <a href="{% url 'mailings:mailing_update' mailing.pk %}">✏️</a>
+                <a href="{% url 'mailings:mailing_delete' mailing.pk %}">🗑️</a>
+            </li>
+        {% empty %}
+            <li>Нет активных рассылок</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'mailings:client_list' %}">← Клиенты</a> |
+    <a href="{% url 'mailings:message_list' %}">Сообщения →</a>
+</body>
+</html>
