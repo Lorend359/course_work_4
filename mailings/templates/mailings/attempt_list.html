@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Попытки рассылок</title>
+</head>
+<body>
+    <h1>Попытки рассылок</h1>
+
+    <ul>
+        {% for attempt in attempts %}
+            <li>
+                <strong>{{ attempt.attempt_time|date:"d.m.Y H:i:s" }}</strong> —
+                {{ attempt.status }}<br>
+                Ответ сервера: {{ attempt.server_response }}<br>
+                Рассылка: {{ attempt.mailing }}
+            </li>
+        {% empty %}
+            <li>Попыток ещё нет.</li>
+        {% endfor %}
+    </ul>
+
+    <a href="{% url 'mailings:client_list' %}">← Клиенты</a> |
+    <a href="{% url 'mailings:message_list' %}">Сообщения</a> |
+    <a href="{% url 'mailings:mailing_list' %}">Рассылки</a>
+</body>
+</html>

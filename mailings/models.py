@@ -56,9 +56,14 @@ class MailingAttempt(models.Model):
 
     attempt_time = models.DateTimeField("Дата и время попытки", auto_now_add=True)
     status = models.CharField("Статус", max_length=20, choices=STATUS_CHOICES)
-    server_response = models.TextField("Ответ почтового сервера", blank=True)
+    server_response = models.TextField("Ответ почтового сервера")
 
-    mailing = models.ForeignKey(Mailing, on_delete=models.CASCADE, verbose_name="Рассылка", related_name="attempts")
+    mailing = models.ForeignKey(
+        Mailing,
+        on_delete=models.CASCADE,
+        verbose_name="Рассылка",
+        related_name="attempts"
+    )
 
     class Meta:
         verbose_name = "попытка рассылки"
@@ -66,3 +71,4 @@ class MailingAttempt(models.Model):
 
     def __str__(self):
         return f"{self.attempt_time} — {self.status}"
+

@@ -17,6 +17,7 @@
             <li>Пока нет клиентов.</li>
         {% endfor %}
     </ul>
-    <a href="{% url 'mailings:message_list' %}">→ Сообщения</a>
+    <a href="{% url 'mailings:message_list' %}">→ Сообщения</a> |
+    <a href="{% url 'mailings:attempt_list' %}">Попытки</a>
 </body>
 </html>
