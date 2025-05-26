@@ -11,6 +11,7 @@
             <li>
                 {{ client.full_name }} — {{ client.email }}
                 <a href="{% url 'mailings:client_update' client.pk %}">✏️ Редактировать</a>
+                <a href="{% url 'mailings:client_delete' client.pk %}">🗑️ Удалить</a>
             </li>
         {% empty %}
             <li>Пока нет клиентов.</li>
