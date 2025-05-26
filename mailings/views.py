@@ -2,7 +2,7 @@ from django.core.mail import send_mail
 from django.contrib import messages
 from django.shortcuts import redirect, get_object_or_404
 from django.views import View
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView
 from django.urls import reverse_lazy
 
 from .models import Client, Message, Mailing, MailingAttempt
@@ -128,7 +128,20 @@ class MailingSendView(View):
         return redirect("mailings:mailing_list")
 
 
+# ===== ПОПЫТКИ РАССЫЛОК =====
 class MailingAttemptListView(ListView):
     model = MailingAttempt
     template_name = "mailings/attempt_list.html"
     context_object_name = "attempts"
+
+
+# ===== ГЛАВНАЯ СТРАНИЦА =====
+class HomeView(TemplateView):
+    template_name = "mailings/home.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["total_mailings"] = Mailing.objects.count()
+        context["active_mailings"] = Mailing.objects.filter(status="Запущена").count()
+        context["unique_clients"] = Client.objects.count()
+        return context

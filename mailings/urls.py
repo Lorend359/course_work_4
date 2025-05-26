@@ -4,6 +4,7 @@ from . import views
 app_name = "mailings"
 
 urlpatterns = [
+    path("", views.HomeView.as_view(), name="home"),
     path("clients/", views.ClientListView.as_view(), name="client_list"),
     path("clients/create/", views.ClientCreateView.as_view(), name="client_create"),
     path("clients/<int:pk>/update/", views.ClientUpdateView.as_view(), name="client_update"),
@@ -19,6 +20,3 @@ urlpatterns = [
     path("mailings/<int:pk>/send/", views.MailingSendView.as_view(), name="mailing_send"),
     path("attempts/", views.MailingAttemptListView.as_view(), name="attempt_list"),
 ]
-
-
-
