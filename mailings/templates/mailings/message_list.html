@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Список сообщений</title>
+</head>
+<body>
+    <h1>Список сообщений</h1>
+    <a href="{% url 'mailings:message_create' %}">➕ Новое сообщение</a>
+    <ul>
+        {% for message in messages %}
+            <li>
+                {{ message.subject }}
+                <a href="{% url 'mailings:message_update' message.pk %}">✏️</a>
+                <a href="{% url 'mailings:message_delete' message.pk %}">🗑️</a>
+            </li>
+        {% empty %}
+            <li>Нет сообщений</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'mailings:client_list' %}">← Клиенты</a>
+</body>
+</html>
