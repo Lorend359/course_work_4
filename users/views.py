@@ -32,6 +32,7 @@ class UserLogoutView(View):
 class UserProfileView(LoginRequiredMixin, TemplateView):
     template_name = "users/profile.html"
 
+
 class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = CustomUser
     fields = ("avatar", "phone", "country")

@@ -8,6 +8,7 @@ Django settings for course_work_4 project.
 from pathlib import Path
 
 import environ
+import os
 
 # ───────────────────────────────────────────────
 # Базовые пути и переменные окружения
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "users",
     "mailings",
+    'django_apscheduler',
 ]
 
 # ───────────────────────────────────────────────
@@ -150,3 +152,41 @@ AUTH_USER_MODEL = "users.CustomUser"
 # Перенаправления после логина/логаута
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/users/login/"
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": os.path.join(BASE_DIR, "logs/app.log"),
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+        },
+        "mailings.views": {
+            "handlers": ["console", "file"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+    },
+}

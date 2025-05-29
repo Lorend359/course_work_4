@@ -8,6 +8,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.decorators.cache import cache_page
 from .models import Client, Message, Mailing, MailingAttempt
 from .forms import MailingForm
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # ===== КЛИЕНТЫ =====
@@ -26,7 +29,6 @@ class ClientListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["is_manager"] = self.request.user.groups.filter(name="Менеджеры").exists()
         return context
-
 
 
 class ClientCreateView(LoginRequiredMixin, CreateView):
@@ -167,6 +169,8 @@ class MailingSendView(LoginRequiredMixin, View):
         success_count = 0
         error_count = 0
 
+        logger.info(f"Пользователь {request.user} запустил рассылку {mailing.pk}")
+
         for client in mailing.clients.filter(owner=request.user):
             try:
                 send_mail(
@@ -181,6 +185,7 @@ class MailingSendView(LoginRequiredMixin, View):
                     status="Успешно",
                     server_response="Отправлено без ошибок",
                 )
+                logger.debug(f"Успешная отправка на {client.email}")
                 success_count += 1
             except Exception as e:
                 MailingAttempt.objects.create(
@@ -188,14 +193,14 @@ class MailingSendView(LoginRequiredMixin, View):
                     status="Не успешно",
                     server_response=str(e),
                 )
+                logger.error(f"Ошибка отправки на {client.email}: {e}")
                 error_count += 1
 
         mailing.status = "Запущена"
         mailing.save(update_fields=["status"])
-        messages.success(
-            request,
-            f"Отправка завершена: Успешно — {success_count}, Ошибки — {error_count}"
-        )
+        logger.info(f"Рассылка {mailing.pk} завершена: {success_count} успешно, {error_count} ошибок")
+
+        messages.success(request, f"Отправка завершена: Успешно — {success_count}, Ошибки — {error_count}")
         return redirect("mailings:mailing_list")
 
 
@@ -215,9 +220,11 @@ class HomeView(TemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
+
             @cache_page(60)
             def cached_view(req):
                 return super(HomeView, self).dispatch(req, *args, **kwargs)
+
             return cached_view(request)
         return super().dispatch(request, *args, **kwargs)
 
