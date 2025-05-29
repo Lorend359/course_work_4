@@ -6,6 +6,9 @@
 </head>
 <body>
     <h1>Список клиентов</h1>
+
+    <p><a href="{% url 'mailings:client_create' %}">➕ Добавить клиента</a></p>
+
     <ul>
         {% for client in clients %}
             <li>
@@ -17,6 +20,7 @@
             <li>Пока нет клиентов.</li>
         {% endfor %}
     </ul>
+
     <a href="{% url 'mailings:message_list' %}">→ Сообщения</a> |
     <a href="{% url 'mailings:attempt_list' %}">Попытки</a>
 </body>

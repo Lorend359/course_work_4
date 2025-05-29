@@ -1,10 +1,16 @@
 from django.db import models
-
+from django.conf import settings
 
 class Client(models.Model):
     email = models.EmailField("e-mail", unique=True)
     full_name = models.CharField("Ф. И. О.", max_length=255)
     comment = models.TextField("Комментарий", blank=True)
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name="Владелец",
+        related_name="clients"
+    )
 
     class Meta:
         verbose_name = "получатель рассылки"
@@ -17,6 +23,12 @@ class Client(models.Model):
 class Message(models.Model):
     subject = models.CharField("Тема письма", max_length=255)
     body = models.TextField("Тело письма")
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name="Владелец",
+        related_name="messages"
+    )
 
     class Meta:
         verbose_name = "сообщение"
@@ -39,6 +51,12 @@ class Mailing(models.Model):
 
     message = models.ForeignKey(Message, on_delete=models.CASCADE, verbose_name="Сообщение", related_name="mailings")
     clients = models.ManyToManyField(Client, verbose_name="Получатели", related_name="mailings")
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name="Владелец",
+        related_name="mailings"
+    )
 
     class Meta:
         verbose_name = "рассылка"
@@ -71,4 +89,3 @@ class MailingAttempt(models.Model):
 
     def __str__(self):
         return f"{self.attempt_time} — {self.status}"
-

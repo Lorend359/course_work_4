@@ -4,99 +4,139 @@ from django.shortcuts import redirect, get_object_or_404
 from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Client, Message, Mailing, MailingAttempt
 from .forms import MailingForm
 
 
 # ===== КЛИЕНТЫ =====
-class ClientListView(ListView):
+class ClientListView(LoginRequiredMixin, ListView):
     model = Client
     template_name = "mailings/client_list.html"
     context_object_name = "clients"
 
+    def get_queryset(self):
+        return Client.objects.filter(owner=self.request.user)
 
-class ClientCreateView(CreateView):
+
+class ClientCreateView(LoginRequiredMixin, CreateView):
     model = Client
     template_name = "mailings/client_form.html"
     fields = ["email", "full_name", "comment"]
     success_url = reverse_lazy("mailings:client_list")
 
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
 
-class ClientUpdateView(UpdateView):
+
+class ClientUpdateView(LoginRequiredMixin, UpdateView):
     model = Client
     template_name = "mailings/client_form.html"
     fields = ["email", "full_name", "comment"]
     success_url = reverse_lazy("mailings:client_list")
 
+    def get_queryset(self):
+        return Client.objects.filter(owner=self.request.user)
 
-class ClientDeleteView(DeleteView):
+
+class ClientDeleteView(LoginRequiredMixin, DeleteView):
     model = Client
     template_name = "mailings/client_confirm_delete.html"
     success_url = reverse_lazy("mailings:client_list")
 
+    def get_queryset(self):
+        return Client.objects.filter(owner=self.request.user)
+
 
 # ===== СООБЩЕНИЯ =====
-class MessageListView(ListView):
+class MessageListView(LoginRequiredMixin, ListView):
     model = Message
     template_name = "mailings/message_list.html"
     context_object_name = "messages"
 
+    def get_queryset(self):
+        return Message.objects.filter(owner=self.request.user)
 
-class MessageCreateView(CreateView):
+
+class MessageCreateView(LoginRequiredMixin, CreateView):
     model = Message
     template_name = "mailings/message_form.html"
     fields = ["subject", "body"]
     success_url = reverse_lazy("mailings:message_list")
 
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
 
-class MessageUpdateView(UpdateView):
+
+class MessageUpdateView(LoginRequiredMixin, UpdateView):
     model = Message
     template_name = "mailings/message_form.html"
     fields = ["subject", "body"]
     success_url = reverse_lazy("mailings:message_list")
 
+    def get_queryset(self):
+        return Message.objects.filter(owner=self.request.user)
 
-class MessageDeleteView(DeleteView):
+
+class MessageDeleteView(LoginRequiredMixin, DeleteView):
     model = Message
     template_name = "mailings/message_confirm_delete.html"
     success_url = reverse_lazy("mailings:message_list")
 
+    def get_queryset(self):
+        return Message.objects.filter(owner=self.request.user)
+
 
 # ===== РАССЫЛКИ =====
-class MailingListView(ListView):
+class MailingListView(LoginRequiredMixin, ListView):
     model = Mailing
     template_name = "mailings/mailing_list.html"
     context_object_name = "mailings"
 
+    def get_queryset(self):
+        return Mailing.objects.filter(owner=self.request.user)
 
-class MailingCreateView(CreateView):
+
+class MailingCreateView(LoginRequiredMixin, CreateView):
     model = Mailing
     form_class = MailingForm
     template_name = "mailings/mailing_form.html"
     success_url = reverse_lazy("mailings:mailing_list")
 
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
 
-class MailingUpdateView(UpdateView):
+
+class MailingUpdateView(LoginRequiredMixin, UpdateView):
     model = Mailing
     form_class = MailingForm
     template_name = "mailings/mailing_form.html"
     success_url = reverse_lazy("mailings:mailing_list")
 
+    def get_queryset(self):
+        return Mailing.objects.filter(owner=self.request.user)
 
-class MailingDeleteView(DeleteView):
+
+class MailingDeleteView(LoginRequiredMixin, DeleteView):
     model = Mailing
     template_name = "mailings/mailing_confirm_delete.html"
     success_url = reverse_lazy("mailings:mailing_list")
 
+    def get_queryset(self):
+        return Mailing.objects.filter(owner=self.request.user)
 
-class MailingSendView(View):
+
+class MailingSendView(LoginRequiredMixin, View):
     def get(self, request, pk):
-        mailing = get_object_or_404(Mailing, pk=pk)
+        mailing = get_object_or_404(Mailing, pk=pk, owner=request.user)
         success_count = 0
         error_count = 0
 
-        for client in mailing.clients.all():
+        for client in mailing.clients.filter(owner=request.user):
             try:
                 send_mail(
                     subject=mailing.message.subject,
@@ -129,10 +169,13 @@ class MailingSendView(View):
 
 
 # ===== ПОПЫТКИ РАССЫЛОК =====
-class MailingAttemptListView(ListView):
+class MailingAttemptListView(LoginRequiredMixin, ListView):
     model = MailingAttempt
     template_name = "mailings/attempt_list.html"
     context_object_name = "attempts"
+
+    def get_queryset(self):
+        return MailingAttempt.objects.filter(mailing__owner=self.request.user)
 
 
 # ===== ГЛАВНАЯ СТРАНИЦА =====
@@ -141,7 +184,15 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["total_mailings"] = Mailing.objects.count()
-        context["active_mailings"] = Mailing.objects.filter(status="Запущена").count()
-        context["unique_clients"] = Client.objects.count()
+        user = self.request.user
+
+        if user.is_authenticated:
+            context["total_mailings"] = Mailing.objects.filter(owner=user).count()
+            context["active_mailings"] = Mailing.objects.filter(owner=user, status="Запущена").count()
+            context["unique_clients"] = Client.objects.filter(owner=user).count()
+        else:
+            context["total_mailings"] = 0
+            context["active_mailings"] = 0
+            context["unique_clients"] = 0
+
         return context
