@@ -5,7 +5,7 @@ from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-
+from django.views.decorators.cache import cache_page
 from .models import Client, Message, Mailing, MailingAttempt
 from .forms import MailingForm
 
@@ -212,6 +212,14 @@ class MailingAttemptListView(LoginRequiredMixin, ListView):
 # ===== ГЛАВНАЯ СТРАНИЦА =====
 class HomeView(TemplateView):
     template_name = "mailings/home.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            @cache_page(60)
+            def cached_view(req):
+                return super(HomeView, self).dispatch(req, *args, **kwargs)
+            return cached_view(request)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
