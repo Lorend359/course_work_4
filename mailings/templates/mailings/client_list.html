@@ -7,14 +7,18 @@
 <body>
     <h1>Список клиентов</h1>
 
-    <p><a href="{% url 'mailings:client_create' %}">➕ Добавить клиента</a></p>
+    {% if not is_manager %}
+        <a href="{% url 'mailings:client_create' %}">➕ Добавить клиента</a>
+    {% endif %}
 
     <ul>
         {% for client in clients %}
             <li>
                 {{ client.full_name }} — {{ client.email }}
-                <a href="{% url 'mailings:client_update' client.pk %}">✏️ Редактировать</a>
-                <a href="{% url 'mailings:client_delete' client.pk %}">🗑️ Удалить</a>
+                {% if client.owner == request.user %}
+                    <a href="{% url 'mailings:client_update' client.pk %}">✏️</a>
+                    <a href="{% url 'mailings:client_delete' client.pk %}">🗑️</a>
+                {% endif %}
             </li>
         {% empty %}
             <li>Пока нет клиентов.</li>

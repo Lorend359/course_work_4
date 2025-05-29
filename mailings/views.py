@@ -4,7 +4,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView
 from django.urls import reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 from .models import Client, Message, Mailing, MailingAttempt
 from .forms import MailingForm
@@ -17,7 +17,16 @@ class ClientListView(LoginRequiredMixin, ListView):
     context_object_name = "clients"
 
     def get_queryset(self):
-        return Client.objects.filter(owner=self.request.user)
+        user = self.request.user
+        if user.groups.filter(name="Менеджеры").exists():
+            return Client.objects.all()
+        return Client.objects.filter(owner=user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_manager"] = self.request.user.groups.filter(name="Менеджеры").exists()
+        return context
+
 
 
 class ClientCreateView(LoginRequiredMixin, CreateView):
@@ -31,7 +40,7 @@ class ClientCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class ClientUpdateView(LoginRequiredMixin, UpdateView):
+class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Client
     template_name = "mailings/client_form.html"
     fields = ["email", "full_name", "comment"]
@@ -40,14 +49,22 @@ class ClientUpdateView(LoginRequiredMixin, UpdateView):
     def get_queryset(self):
         return Client.objects.filter(owner=self.request.user)
 
+    def test_func(self):
+        obj = self.get_object()
+        return obj.owner == self.request.user
 
-class ClientDeleteView(LoginRequiredMixin, DeleteView):
+
+class ClientDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Client
     template_name = "mailings/client_confirm_delete.html"
     success_url = reverse_lazy("mailings:client_list")
 
     def get_queryset(self):
         return Client.objects.filter(owner=self.request.user)
+
+    def test_func(self):
+        obj = self.get_object()
+        return obj.owner == self.request.user
 
 
 # ===== СООБЩЕНИЯ =====
@@ -57,7 +74,10 @@ class MessageListView(LoginRequiredMixin, ListView):
     context_object_name = "messages"
 
     def get_queryset(self):
-        return Message.objects.filter(owner=self.request.user)
+        user = self.request.user
+        if user.groups.filter(name="Менеджеры").exists():
+            return Message.objects.all()
+        return Message.objects.filter(owner=user)
 
 
 class MessageCreateView(LoginRequiredMixin, CreateView):
@@ -97,7 +117,10 @@ class MailingListView(LoginRequiredMixin, ListView):
     context_object_name = "mailings"
 
     def get_queryset(self):
-        return Mailing.objects.filter(owner=self.request.user)
+        user = self.request.user
+        if user.groups.filter(name="Менеджеры").exists():
+            return Mailing.objects.all()
+        return Mailing.objects.filter(owner=user)
 
 
 class MailingCreateView(LoginRequiredMixin, CreateView):
@@ -111,7 +134,7 @@ class MailingCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class MailingUpdateView(LoginRequiredMixin, UpdateView):
+class MailingUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Mailing
     form_class = MailingForm
     template_name = "mailings/mailing_form.html"
@@ -120,14 +143,22 @@ class MailingUpdateView(LoginRequiredMixin, UpdateView):
     def get_queryset(self):
         return Mailing.objects.filter(owner=self.request.user)
 
+    def test_func(self):
+        obj = self.get_object()
+        return obj.owner == self.request.user
 
-class MailingDeleteView(LoginRequiredMixin, DeleteView):
+
+class MailingDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Mailing
     template_name = "mailings/mailing_confirm_delete.html"
     success_url = reverse_lazy("mailings:mailing_list")
 
     def get_queryset(self):
         return Mailing.objects.filter(owner=self.request.user)
+
+    def test_func(self):
+        obj = self.get_object()
+        return obj.owner == self.request.user
 
 
 class MailingSendView(LoginRequiredMixin, View):

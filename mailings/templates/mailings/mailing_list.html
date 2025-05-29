@@ -6,7 +6,11 @@
 </head>
 <body>
     <h1>Список рассылок</h1>
-    <a href="{% url 'mailings:mailing_create' %}">➕ Новая рассылка</a>
+
+    {% if not is_manager %}
+        <a href="{% url 'mailings:mailing_create' %}">➕ Новая рассылка</a>
+    {% endif %}
+
     <ul>
         {% for mailing in mailings %}
             <li>
@@ -19,14 +23,17 @@
                         <li>{{ client.full_name }} ({{ client.email }})</li>
                     {% endfor %}
                 </ul>
-                <a href="{% url 'mailings:mailing_update' mailing.pk %}">✏️</a>
-                <a href="{% url 'mailings:mailing_delete' mailing.pk %}">🗑️</a>
-                <a href="{% url 'mailings:mailing_send' mailing.pk %}">📤 Отправить</a>
+                {% if mailing.owner == request.user %}
+                    <a href="{% url 'mailings:mailing_update' mailing.pk %}">✏️</a>
+                    <a href="{% url 'mailings:mailing_delete' mailing.pk %}">🗑️</a>
+                    <a href="{% url 'mailings:mailing_send' mailing.pk %}">📤 Отправить</a>
+                {% endif %}
             </li>
         {% empty %}
             <li>Нет активных рассылок</li>
         {% endfor %}
     </ul>
+
     <a href="{% url 'mailings:client_list' %}">← Клиенты</a> |
     <a href="{% url 'mailings:message_list' %}">Сообщения →</a> |
     <a href="{% url 'mailings:attempt_list' %}">Попытки</a>

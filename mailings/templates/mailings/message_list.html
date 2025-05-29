@@ -6,19 +6,26 @@
 </head>
 <body>
     <h1>Список сообщений</h1>
-    <a href="{% url 'mailings:message_create' %}">➕ Новое сообщение</a>
+
+    {% if not is_manager %}
+        <a href="{% url 'mailings:message_create' %}">➕ Новое сообщение</a>
+    {% endif %}
+
     <ul>
         {% for message in messages %}
             <li>
                 <strong>{{ message.subject }}</strong><br>
                 {{ message.body|linebreaks }}
-                <a href="{% url 'mailings:message_update' message.pk %}">✏️</a>
-                <a href="{% url 'mailings:message_delete' message.pk %}">🗑️</a>
+                {% if message.owner == request.user %}
+                    <a href="{% url 'mailings:message_update' message.pk %}">✏️</a>
+                    <a href="{% url 'mailings:message_delete' message.pk %}">🗑️</a>
+                {% endif %}
             </li>
         {% empty %}
             <li>Нет сообщений</li>
         {% endfor %}
     </ul>
+
     <a href="{% url 'mailings:client_list' %}">← Клиенты</a> |
     <a href="{% url 'mailings:attempt_list' %}">Попытки</a>
 </body>
