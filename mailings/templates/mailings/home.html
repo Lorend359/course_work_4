@@ -9,7 +9,10 @@
 
     {% if user.is_authenticated %}
         <p>Вы вошли как: <strong>{{ user.email }}</strong></p>
-        <p><a href="{% url 'users:logout' %}">Выйти</a></p>
+        <p>
+            <a href="{% url 'users:profile' %}">Мой профиль</a> |
+            <a href="{% url 'users:logout' %}">Выйти</a>
+        </p>
     {% else %}
         <p>Вы не вошли в систему.</p>
         <p>

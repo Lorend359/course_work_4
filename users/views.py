@@ -3,7 +3,8 @@ from django.contrib.auth import logout
 from django.views.generic import CreateView, View
 from django.urls import reverse_lazy
 from django.shortcuts import redirect
-
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView, UpdateView
 from .forms import UserRegisterForm, UserLoginForm
 from .models import CustomUser
 
@@ -26,3 +27,16 @@ class UserLogoutView(View):
     def get(self, request):
         logout(request)
         return redirect(self.next_page)
+
+
+class UserProfileView(LoginRequiredMixin, TemplateView):
+    template_name = "users/profile.html"
+
+class UserUpdateView(LoginRequiredMixin, UpdateView):
+    model = CustomUser
+    fields = ("avatar", "phone", "country")
+    template_name = "users/update.html"
+    success_url = reverse_lazy("users:profile")
+
+    def get_object(self, queryset=None):
+        return self.request.user

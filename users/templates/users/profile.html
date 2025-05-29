@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Профиль</h2>
+
+  <p><strong>Email:</strong> {{ user.email }}</p>
+  <p><strong>Телефон:</strong> {{ user.phone }}</p>
+  <p><strong>Страна:</strong> {{ user.country }}</p>
+
+  {% if user.avatar %}
+    <p><img src="{{ user.avatar.url }}" alt="Аватар" width="100"></p>
+  {% else %}
+    <p><em>Аватар не загружен</em></p>
+  {% endif %}
+
+  <p><a href="{% url 'users:edit_profile' %}">Редактировать</a></p>
+{% endblock %}
