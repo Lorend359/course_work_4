@@ -1,7 +1,7 @@
 from django.urls import path
-from django.contrib.auth.views import LoginView, LogoutView
-from .views import UserRegisterView
+from .views import UserRegisterView, UserLogoutView
 from .forms import UserLoginForm
+from django.contrib.auth.views import LoginView
 
 app_name = "users"
 
@@ -11,5 +11,5 @@ urlpatterns = [
         template_name="users/login.html",
         authentication_form=UserLoginForm
     ), name="login"),
-    path("logout/", LogoutView.as_view(next_page="mailings:home"), name="logout"),
+    path("logout/", UserLogoutView.as_view(), name="logout"),
 ]
