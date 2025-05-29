@@ -6,6 +6,13 @@
 </head>
 <body>
     <h1>Главная</h1>
+
+    {% if user.is_authenticated %}
+        <p>Вы вошли как: <strong>{{ user.email }}</strong></p>
+    {% else %}
+        <p>Вы не вошли в систему.</p>
+    {% endif %}
+
     <p>Всего рассылок: <strong>{{ total_mailings }}</strong></p>
     <p>Активных рассылок: <strong>{{ active_mailings }}</strong></p>
     <p>Уникальных получателей: <strong>{{ unique_clients }}</strong></p>

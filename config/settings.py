@@ -145,3 +145,8 @@ EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=False)
 
 AUTH_USER_MODEL = "users.CustomUser"
+
+
+# Перенаправления после логина/логаута
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/users/login/"
