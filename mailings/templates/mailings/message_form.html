@@ -1,16 +1,16 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Форма сообщения</title>
-</head>
-<body>
-    <h1>{{ view.object.pk|yesno:"Редактировать сообщение,Создать сообщение" }}</h1>
+{% extends "base.html" %}
+
+{% block title %}{{ view.object.pk|yesno:"Редактировать сообщение,Создать сообщение" }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">{{ view.object.pk|yesno:"Редактировать сообщение,Создать сообщение" }}</h1>
+
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Сохранить</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+        <a href="{% url 'mailings:message_list' %}" class="btn btn-secondary">← Назад</a>
     </form>
-    <a href="{% url 'mailings:message_list' %}">← Назад</a>
-</body>
-</html>
+</div>
+{% endblock %}
