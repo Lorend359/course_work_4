@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Список клиентов</title>
+</head>
+<body>
+    <h1>Список клиентов</h1>
+
+    {% if not is_manager %}
+        <a href="{% url 'mailings:client_create' %}">➕ Добавить клиента</a>
+    {% endif %}
+
+    <ul>
+        {% for client in clients %}
+            <li>
+                {{ client.full_name }} — {{ client.email }}
+                {% if client.owner == request.user %}
+                    <a href="{% url 'mailings:client_update' client.pk %}">✏️</a>
+                    <a href="{% url 'mailings:client_delete' client.pk %}">🗑️</a>
+                {% endif %}
+            </li>
+        {% empty %}
+            <li>Пока нет клиентов.</li>
+        {% endfor %}
+    </ul>
+
+    <a href="{% url 'mailings:message_list' %}">→ Сообщения</a> |
+    <a href="{% url 'mailings:attempt_list' %}">Попытки</a>
+</body>
+</html>
