@@ -1,41 +1,44 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Список рассылок</title>
-</head>
-<body>
-    <h1>Список рассылок</h1>
+{% extends "base.html" %}
+
+{% block title %}Список рассылок{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Список рассылок</h1>
 
     {% if not is_manager %}
-        <a href="{% url 'mailings:mailing_create' %}">➕ Новая рассылка</a>
+        <a href="{% url 'mailings:mailing_create' %}" class="btn btn-success mb-3">➕ Новая рассылка</a>
     {% endif %}
 
-    <ul>
-        {% for mailing in mailings %}
-            <li>
-                <strong>с {{ mailing.start_time }} до {{ mailing.end_time }}</strong><br>
-                Статус: {{ mailing.status }}<br>
-                Сообщение: {{ mailing.message.subject }}<br>
-                Получатели:
-                <ul>
-                    {% for client in mailing.clients.all %}
-                        <li>{{ client.full_name }} ({{ client.email }})</li>
-                    {% endfor %}
-                </ul>
-                {% if mailing.owner == request.user %}
-                    <a href="{% url 'mailings:mailing_update' mailing.pk %}">✏️</a>
-                    <a href="{% url 'mailings:mailing_delete' mailing.pk %}">🗑️</a>
-                    <a href="{% url 'mailings:mailing_send' mailing.pk %}">📤 Отправить</a>
-                {% endif %}
-            </li>
-        {% empty %}
-            <li>Нет активных рассылок</li>
-        {% endfor %}
-    </ul>
+    {% if mailings %}
+        <ul class="list-group mb-4">
+            {% for mailing in mailings %}
+                <li class="list-group-item">
+                    <strong>с {{ mailing.start_time }} до {{ mailing.end_time }}</strong><br>
+                    <strong>Статус:</strong> {{ mailing.status }}<br>
+                    <strong>Сообщение:</strong> {{ mailing.message.subject }}<br>
+                    <strong>Получатели:</strong>
+                    <ul>
+                        {% for client in mailing.clients.all %}
+                            <li>{{ client.full_name }} ({{ client.email }})</li>
+                        {% endfor %}
+                    </ul>
+                    {% if mailing.owner == request.user %}
+                        <a href="{% url 'mailings:mailing_update' mailing.pk %}" class="btn btn-sm btn-primary">✏️</a>
+                        <a href="{% url 'mailings:mailing_delete' mailing.pk %}" class="btn btn-sm btn-danger">🗑️</a>
+                        <a href="{% url 'mailings:mailing_send' mailing.pk %}" class="btn btn-sm btn-warning">📤 Отправить</a>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Нет активных рассылок</p>
+    {% endif %}
 
-    <a href="{% url 'mailings:client_list' %}">← Клиенты</a> |
-    <a href="{% url 'mailings:message_list' %}">Сообщения →</a> |
-    <a href="{% url 'mailings:attempt_list' %}">Попытки</a>
-</body>
-</html>
+    <div class="mt-4">
+        <a href="{% url 'mailings:client_list' %}">← Клиенты</a> |
+        <a href="{% url 'mailings:message_list' %}">Сообщения →</a> |
+        <a href="{% url 'mailings:attempt_list' %}">Попытки</a>
+    </div>
+</div>
+{% endblock %}

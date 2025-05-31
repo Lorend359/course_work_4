@@ -1,31 +1,36 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Список клиентов</title>
-</head>
-<body>
-    <h1>Список клиентов</h1>
+{% extends "base.html" %}
+
+{% block title %}Список клиентов{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-3">Список клиентов</h1>
 
     {% if not is_manager %}
-        <a href="{% url 'mailings:client_create' %}">➕ Добавить клиента</a>
+        <a href="{% url 'mailings:client_create' %}" class="btn btn-success mb-3">➕ Добавить клиента</a>
     {% endif %}
 
-    <ul>
-        {% for client in clients %}
-            <li>
-                {{ client.full_name }} — {{ client.email }}
-                {% if client.owner == request.user %}
-                    <a href="{% url 'mailings:client_update' client.pk %}">✏️</a>
-                    <a href="{% url 'mailings:client_delete' client.pk %}">🗑️</a>
-                {% endif %}
-            </li>
-        {% empty %}
-            <li>Пока нет клиентов.</li>
-        {% endfor %}
-    </ul>
+    {% if clients %}
+        <ul class="list-group mb-4">
+            {% for client in clients %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ client.full_name }} — {{ client.email }}</span>
+                    {% if client.owner == request.user %}
+                        <span>
+                            <a href="{% url 'mailings:client_update' client.pk %}" class="btn btn-sm btn-outline-primary">✏️</a>
+                            <a href="{% url 'mailings:client_delete' client.pk %}" class="btn btn-sm btn-outline-danger">🗑️</a>
+                        </span>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="alert alert-info">Пока нет клиентов.</div>
+    {% endif %}
 
-    <a href="{% url 'mailings:message_list' %}">→ Сообщения</a> |
-    <a href="{% url 'mailings:attempt_list' %}">Попытки</a>
-</body>
-</html>
+    <div class="mt-3">
+        <a href="{% url 'mailings:message_list' %}" class="btn btn-secondary">→ Сообщения</a>
+        <a href="{% url 'mailings:attempt_list' %}" class="btn btn-secondary">Попытки</a>
+    </div>
+</div>
+{% endblock %}

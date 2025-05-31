@@ -1,27 +1,30 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Попытки рассылок</title>
-</head>
-<body>
-    <h1>Попытки рассылок</h1>
+{% extends "base.html" %}
 
-    <ul>
-        {% for attempt in attempts %}
-            <li>
-                <strong>{{ attempt.attempt_time|date:"d.m.Y H:i:s" }}</strong> —
-                {{ attempt.status }}<br>
-                Ответ сервера: {{ attempt.server_response }}<br>
-                Рассылка: {{ attempt.mailing }}
-            </li>
-        {% empty %}
-            <li>Попыток ещё нет.</li>
-        {% endfor %}
-    </ul>
+{% block title %}Попытки рассылок{% endblock %}
 
-    <a href="{% url 'mailings:client_list' %}">← Клиенты</a> |
-    <a href="{% url 'mailings:message_list' %}">Сообщения</a> |
-    <a href="{% url 'mailings:mailing_list' %}">Рассылки</a>
-</body>
-</html>
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Попытки рассылок</h1>
+
+    {% if attempts %}
+        <ul class="list-group mb-4">
+            {% for attempt in attempts %}
+                <li class="list-group-item">
+                    <strong>{{ attempt.attempt_time|date:"d.m.Y H:i:s" }}</strong> —
+                    {{ attempt.status }}<br>
+                    <small class="text-muted">Ответ сервера: {{ attempt.server_response }}</small><br>
+                    Рассылка: {{ attempt.mailing }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-muted">Попыток ещё нет.</p>
+    {% endif %}
+
+    <div class="btn-group" role="group">
+        <a href="{% url 'mailings:client_list' %}" class="btn btn-outline-primary">← Клиенты</a>
+        <a href="{% url 'mailings:message_list' %}" class="btn btn-outline-primary">Сообщения</a>
+        <a href="{% url 'mailings:mailing_list' %}" class="btn btn-outline-primary">Рассылки</a>
+    </div>
+</div>
+{% endblock %}
